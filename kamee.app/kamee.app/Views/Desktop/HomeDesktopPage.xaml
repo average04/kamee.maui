@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:kamee.app.ViewModels"
+    xmlns:controls="clr-namespace:kamee.app.Controls"
+    xmlns:models="clr-namespace:kamee.app.Models"
+    x:Class="kamee.app.Views.Desktop.HomeDesktopPage"
+    x:DataType="vm:HomeViewModel"
+    BackgroundColor="{StaticResource BgPrimary}">
+
+    <Grid ColumnDefinitions="200,*">
+
+        <!-- Left Sidebar -->
+        <Border Grid.Column="0"
+                BackgroundColor="{StaticResource BgSecondary}"
+                Stroke="{StaticResource BorderColor}"
+                StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="0" />
+            </Border.StrokeShape>
+
+            <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="16,24,16,20">
+
+                <!-- Logo row -->
+                <HorizontalStackLayout Grid.Row="0" Spacing="8" Margin="0,0,0,24">
+                    <Label Text="🐢" FontSize="20" VerticalOptions="Center" />
+                    <Label Text="kamee" FontSize="18" FontAttributes="Bold"
+                           TextColor="{StaticResource Mint}" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <!-- Search -->
+                <Border Grid.Row="1"
+                        StrokeShape="RoundRectangle 10"
+                        Stroke="{StaticResource BorderColor}"
+                        BackgroundColor="{StaticResource BgTertiary}"
+                        HeightRequest="36" Margin="0,0,0,20">
+                    <Entry Placeholder="Search..." FontSize="12"
+                           PlaceholderColor="{StaticResource TextMuted}"
+                           TextColor="{StaticResource TextPrimary}"
+                           BackgroundColor="Transparent" Margin="10,0" />
+                </Border>
+
+                <!-- Nav items -->
+                <VerticalStackLayout Grid.Row="2" Spacing="4">
+                    <Border StrokeShape="RoundRectangle 8" Stroke="Transparent"
+                            Padding="10,8" BackgroundColor="#1A5EFFD8">
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="🏠" FontSize="16" />
+                            <Label Text="Home" TextColor="{StaticResource Mint}"
+                                   FontSize="14" FontAttributes="Bold" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 8" Stroke="Transparent"
+                            Padding="10,8" BackgroundColor="Transparent">
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="👥" FontSize="16" />
+                            <Label Text="Friends" TextColor="{StaticResource TextSecondary}"
+                                   FontSize="14" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 8" Stroke="Transparent"
+                            Padding="10,8" BackgroundColor="Transparent">
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="💬" FontSize="16" />
+                            <Label Text="Messages" TextColor="{StaticResource TextSecondary}"
+                                   FontSize="14" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 8" Stroke="Transparent"
+                            Padding="10,8" BackgroundColor="Transparent">
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="🚪" FontSize="16" />
+                            <Label Text="Rooms" TextColor="{StaticResource TextSecondary}"
+                                   FontSize="14" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <!-- Divider -->
+                    <BoxView BackgroundColor="{StaticResource BorderColor}" HeightRequest="1" Margin="0,12" />
+
+                    <!-- Friends online -->
+                    <Label Text="FRIENDS ONLINE" Style="{StaticResource SectionHeader}" />
+
+                    <CollectionView ItemsSource="{Binding FriendsWatching}" HeightRequest="200">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:User">
+                                <HorizontalStackLayout Spacing="8" Padding="0,6,0,6">
+                                    <controls:AvatarControl
+                                        Initials="{Binding AvatarInitials}"
+                                        Size="28" FontSize="10"
+                                        AvatarColor="{StaticResource BgTertiary}"
+                                        IsOnline="True" />
+                                    <VerticalStackLayout VerticalOptions="Center" Spacing="1">
+                                        <Label Text="{Binding Username}"
+                                               TextColor="{StaticResource TextPrimary}"
+                                               FontSize="12" FontAttributes="Bold" />
+                                        <Label Text="Watching now"
+                                               TextColor="{StaticResource TextMuted}"
+                                               FontSize="10" />
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+                <!-- User info bottom -->
+                <HorizontalStackLayout Grid.Row="3" Spacing="8">
+                    <controls:AvatarControl
+                        Initials="{Binding CurrentUser.AvatarInitials}"
+                        Size="32" FontSize="12"
+                        AvatarColor="{StaticResource BgTertiary}" />
+                    <VerticalStackLayout VerticalOptions="Center" Spacing="0">
+                        <Label Text="{Binding CurrentUser.Username}"
+                               TextColor="{StaticResource TextPrimary}"
+                               FontSize="12" FontAttributes="Bold" />
+                        <Label Text="Free plan"
+                               TextColor="{StaticResource TextMuted}"
+                               FontSize="10" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <ScrollView Grid.Column="1">
+            <VerticalStackLayout Padding="32,32,32,32" Spacing="0">
+
+                <!-- Header -->
+                <Grid Margin="0,0,0,28">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0"
+                           TextColor="{StaticResource TextPrimary}"
+                           FontSize="22" FontAttributes="Bold" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Good evening, " />
+                                <Span Text="{Binding CurrentUser.Username}" TextColor="{StaticResource Mint}" />
+                                <Span Text=" 👋" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+
+                    <HorizontalStackLayout Grid.Column="1" Spacing="12" VerticalOptions="Center">
+                        <Label Text="🔔" FontSize="20" TextColor="{StaticResource TextSecondary}" />
+                        <Border StrokeShape="RoundRectangle 10" Stroke="Transparent">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                    <GradientStop Color="{StaticResource Mint}" Offset="0" />
+                                    <GradientStop Color="{StaticResource MintDark}" Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenCreateRoomCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="+ Create Room"
+                                   TextColor="{StaticResource BgPrimary}"
+                                   FontSize="13" FontAttributes="Bold"
+                                   Margin="14,8" />
+                        </Border>
+                    </HorizontalStackLayout>
+                </Grid>
+
+                <!-- Hero banner -->
+                <Border StrokeShape="RoundRectangle 16" Stroke="Transparent"
+                        Margin="0,0,0,32" Padding="24,20">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                            <GradientStop Color="#2D0D5E" Offset="0" />
+                            <GradientStop Color="#180F30" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="8">
+                            <Label Text="Sofia is watching · Join?" TextColor="{StaticResource Lavender}"
+                                   FontSize="12" />
+                            <Label Text="Friends night in 🎬" TextColor="White"
+                                   FontSize="18" FontAttributes="Bold" />
+                            <Border StrokeShape="RoundRectangle 8" Stroke="Transparent"
+                                    HorizontalOptions="Start">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                        <GradientStop Color="{StaticResource Mint}" Offset="0" />
+                                        <GradientStop Color="{StaticResource MintDark}" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Label Text="Join now 🍿" TextColor="{StaticResource BgPrimary}"
+                                       FontSize="13" FontAttributes="Bold" Margin="16,8" />
+                            </Border>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" Text="🐢✨" FontSize="56" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Live Rooms -->
+                <Label Text="🔴 Live Rooms" TextColor="{StaticResource TextPrimary}"
+                       FontSize="18" FontAttributes="Bold" Margin="0,0,0,16" />
+
+                <CollectionView ItemsSource="{Binding LiveRooms}">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" Span="4" HorizontalItemSpacing="12" VerticalItemSpacing="12" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Room">
+                            <controls:RoomCard Room="{Binding}" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <Label Text="No live rooms right now 🐢"
+                               TextColor="{StaticResource TextMuted}"
+                               FontSize="14" HorizontalOptions="Center"
+                               Margin="0,24,0,0" />
+                    </CollectionView.EmptyView>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+
+</ContentPage>

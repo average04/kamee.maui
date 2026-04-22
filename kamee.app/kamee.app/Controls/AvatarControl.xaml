@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="kamee.app.Controls.AvatarControl"
+    x:Name="this">
+
+    <Grid HeightRequest="{Binding Size, Source={x:Reference this}}"
+          WidthRequest="{Binding Size, Source={x:Reference this}}">
+
+        <!-- Avatar circle -->
+        <Ellipse
+            HeightRequest="{Binding Size, Source={x:Reference this}}"
+            WidthRequest="{Binding Size, Source={x:Reference this}}"
+            Fill="{Binding AvatarColor, Source={x:Reference this}}"
+            HorizontalOptions="Center" VerticalOptions="Center" />
+
+        <!-- Initials label -->
+        <Label
+            Text="{Binding Initials, Source={x:Reference this}}"
+            TextColor="White"
+            FontAttributes="Bold"
+            FontSize="{Binding FontSize, Source={x:Reference this}}"
+            HorizontalOptions="Center"
+            VerticalOptions="Center" />
+
+        <!-- Online dot (shown when IsOnline=true) -->
+        <Ellipse
+            HeightRequest="10" WidthRequest="10"
+            Fill="{StaticResource OnlineGreen}"
+            HorizontalOptions="End" VerticalOptions="End"
+            Margin="0,0,1,1"
+            IsVisible="{Binding IsOnline, Source={x:Reference this}}" />
+
+    </Grid>
+
+</ContentView>

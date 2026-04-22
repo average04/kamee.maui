@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:kamee.app.ViewModels"
+    x:Class="kamee.app.Views.Mobile.SplashPage"
+    x:DataType="vm:SplashViewModel"
+    BackgroundColor="{StaticResource BgPrimary}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="32,64,32,48" Spacing="0" VerticalOptions="FillAndExpand">
+
+            <!-- Concentric circles + Shellby -->
+            <Grid HorizontalOptions="Center" Margin="0,0,0,36"
+                  HeightRequest="144" WidthRequest="144">
+                <Ellipse HeightRequest="144" WidthRequest="144"
+                         Stroke="#1D3530" StrokeThickness="1.5" Fill="Transparent"
+                         HorizontalOptions="Center" VerticalOptions="Center" />
+                <Ellipse HeightRequest="100" WidthRequest="100"
+                         Stroke="#2A4E48" StrokeThickness="1.5" Fill="Transparent"
+                         HorizontalOptions="Center" VerticalOptions="Center" />
+                <Ellipse HeightRequest="64" WidthRequest="64"
+                         Fill="#0D2E28"
+                         HorizontalOptions="Center" VerticalOptions="Center" />
+                <Label Text="🐢" FontSize="28"
+                       HorizontalOptions="Center" VerticalOptions="Center" />
+            </Grid>
+
+            <!-- Logo -->
+            <Label Text="kamee"
+                   FontSize="36" FontAttributes="Bold"
+                   TextColor="{StaticResource Mint}"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,8" />
+
+            <!-- Tagline -->
+            <Label Text="bond closer · watch together 🐢"
+                   TextColor="{StaticResource TextMuted}"
+                   FontSize="12"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,52" />
+
+            <!-- Create Account (Mint gradient) -->
+            <Border Style="{StaticResource MintPillBorder}" Margin="0,0,0,14">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                        <GradientStop Color="{StaticResource Mint}" Offset="0" />
+                        <GradientStop Color="{StaticResource MintDark}" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CreateAccountCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="Create account"
+                       TextColor="{StaticResource BgPrimary}"
+                       FontSize="15" FontAttributes="Bold"
+                       HorizontalOptions="Center" VerticalOptions="Center" />
+            </Border>
+
+            <!-- Sign In (ghost) -->
+            <Border Style="{StaticResource GhostPillBorder}" Margin="0,0,0,36">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SignInCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="Sign in"
+                       TextColor="{StaticResource Lavender}"
+                       FontSize="15" FontAttributes="Bold"
+                       HorizontalOptions="Center" VerticalOptions="Center" />
+            </Border>
+
+            <!-- Divider -->
+            <Grid Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <BoxView Grid.Column="0" BackgroundColor="{StaticResource BorderColor}"
+                         HeightRequest="1" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="or continue with"
+                       TextColor="{StaticResource TextMuted}" FontSize="11"
+                       Margin="12,0" />
+                <BoxView Grid.Column="2" BackgroundColor="{StaticResource BorderColor}"
+                         HeightRequest="1" VerticalOptions="Center" />
+            </Grid>
+
+            <!-- Social buttons -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="16">
+                <Border StrokeShape="RoundRectangle 24" Stroke="{StaticResource BorderColor}"
+                        StrokeThickness="1" BackgroundColor="Transparent"
+                        HeightRequest="48" WidthRequest="48">
+                    <Label Text="G" TextColor="{StaticResource TextPrimary}"
+                           FontSize="16" FontAttributes="Bold"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <Border StrokeShape="RoundRectangle 24" Stroke="{StaticResource BorderColor}"
+                        StrokeThickness="1" BackgroundColor="Transparent"
+                        HeightRequest="48" WidthRequest="48">
+                    <Label Text="f" TextColor="{StaticResource TextPrimary}"
+                           FontSize="18" FontAttributes="Bold"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <Border StrokeShape="RoundRectangle 24" Stroke="{StaticResource BorderColor}"
+                        StrokeThickness="1" BackgroundColor="Transparent"
+                        HeightRequest="48" WidthRequest="48">
+                    <Label Text="🍎" FontSize="18"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

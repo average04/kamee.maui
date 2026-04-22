@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:kamee.app.ViewModels"
+    xmlns:controls="clr-namespace:kamee.app.Controls"
+    xmlns:models="clr-namespace:kamee.app.Models"
+    x:Class="kamee.app.Views.Mobile.HomePage"
+    x:DataType="vm:HomeViewModel"
+    BackgroundColor="{StaticResource BgPrimary}">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Scrollable content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="0">
+
+                <!-- Header -->
+                <Grid Padding="20,52,20,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Logo -->
+                    <Label Grid.Column="0" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="kamee" FontSize="22" FontAttributes="Bold"
+                                      TextColor="{StaticResource Mint}" />
+                                <Span Text=" 🐢" FontSize="18" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+
+                    <!-- Avatar -->
+                    <controls:AvatarControl
+                        Grid.Column="1"
+                        Initials="{Binding CurrentUser.AvatarInitials}"
+                        Size="36" FontSize="13"
+                        AvatarColor="{StaticResource BgTertiary}"
+                        VerticalOptions="Center" />
+                </Grid>
+
+                <!-- Search bar -->
+                <Border Margin="20,0,20,20"
+                        StrokeShape="RoundRectangle 22"
+                        Stroke="{StaticResource BorderColor}"
+                        StrokeThickness="1"
+                        HeightRequest="44"
+                        BackgroundColor="#0DFFFFFF">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Text="🔍" FontSize="14"
+                               VerticalOptions="Center" Margin="14,0,4,0"
+                               TextColor="{StaticResource TextMuted}" />
+                        <Entry Grid.Column="1" Placeholder="Search rooms or friends..."
+                               PlaceholderColor="{StaticResource TextMuted}"
+                               TextColor="{StaticResource TextPrimary}"
+                               BackgroundColor="Transparent"
+                               FontSize="13" Margin="0,0,12,0" />
+                    </Grid>
+                </Border>
+
+                <!-- Tab row -->
+                <HorizontalStackLayout Padding="20,0" Spacing="24" Margin="0,0,0,20">
+                    <Label Text="For you" FontSize="14" FontAttributes="Bold">
+                        <Label.TextColor>
+                            <MultiBinding Converter="{x:Static x:Null}">
+                                <Binding Path="ActiveTab" />
+                            </MultiBinding>
+                        </Label.TextColor>
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SetActiveTabCommand}"
+                                                  CommandParameter="For you" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label Text="Friends" FontSize="14" TextColor="{StaticResource TextSecondary}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SetActiveTabCommand}"
+                                                  CommandParameter="Friends" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label Text="Trending" FontSize="14" TextColor="{StaticResource TextSecondary}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SetActiveTabCommand}"
+                                                  CommandParameter="Trending" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+
+                <!-- Live Rooms section -->
+                <Label Text="LIVE ROOMS ✨" Style="{StaticResource SectionHeader}"
+                       Margin="20,0,20,12" />
+
+                <CollectionView ItemsSource="{Binding LiveRooms}"
+                                HeightRequest="148"
+                                Margin="20,0,0,24">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="0" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Room">
+                            <controls:RoomCard Room="{Binding}" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <Label Text="No live rooms right now 🐢"
+                               TextColor="{StaticResource TextMuted}"
+                               FontSize="13" HorizontalOptions="Center"
+                               Margin="0,20,0,0" />
+                    </CollectionView.EmptyView>
+                </CollectionView>
+
+                <!-- Friends Watching section -->
+                <Label Text="FRIENDS WATCHING 💫" Style="{StaticResource SectionHeader}"
+                       Margin="20,0,20,12" />
+
+                <CollectionView ItemsSource="{Binding FriendsWatching}"
+                                Margin="16,0,16,32">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:User">
+                            <Border Style="{StaticResource CardBorder}"
+                                    Margin="4,0,4,8" Padding="12,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <controls:AvatarControl
+                                        Grid.Column="0"
+                                        Initials="{Binding AvatarInitials}"
+                                        Size="36" FontSize="13"
+                                        AvatarColor="{StaticResource BgTertiary}"
+                                        IsOnline="True"
+                                        VerticalOptions="Center"
+                                        Margin="0,0,10,0" />
+
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="{Binding Username}"
+                                               TextColor="{StaticResource TextPrimary}"
+                                               FontSize="13" FontAttributes="Bold" />
+                                        <Label Text="Watching now"
+                                               TextColor="{StaticResource TextMuted}"
+                                               FontSize="11" />
+                                    </VerticalStackLayout>
+
+                                    <!-- Join button -->
+                                    <Border Grid.Column="2"
+                                            StrokeShape="RoundRectangle 14"
+                                            Stroke="Transparent"
+                                            BackgroundColor="#1A5EFFD8"
+                                            Padding="12,6" VerticalOptions="Center">
+                                        <Label Text="Join" TextColor="{StaticResource Mint}"
+                                               FontSize="12" FontAttributes="Bold" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <Label Text="No friends watching right now"
+                               TextColor="{StaticResource TextMuted}"
+                               FontSize="13" HorizontalOptions="Center"
+                               Margin="0,20,0,0" />
+                    </CollectionView.EmptyView>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+
+</ContentPage>

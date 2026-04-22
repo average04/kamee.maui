@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:kamee.app.Controls"
+    x:Class="kamee.app.Controls.ChatBubble"
+    x:Name="this">
+
+    <Grid Margin="0,4,0,0">
+
+        <!-- Others' messages (left-aligned) -->
+        <HorizontalStackLayout
+            IsVisible="{Binding IsFromCurrentUser, Source={x:Reference this}, Converter={StaticResource InvertedBoolConverter}}"
+            VerticalOptions="Start" Spacing="8" Margin="4,0,48,0">
+
+            <!-- Avatar -->
+            <controls:AvatarControl
+                Initials="{Binding AvatarInitials, Source={x:Reference this}}"
+                Size="28" FontSize="10"
+                AvatarColor="{StaticResource BgTertiary}"
+                VerticalOptions="End" />
+
+            <VerticalStackLayout Spacing="2">
+                <!-- Name -->
+                <Label Text="{Binding SenderName, Source={x:Reference this}}"
+                       TextColor="{StaticResource TextMuted}" FontSize="8" />
+                <!-- Bubble -->
+                <Border StrokeShape="RoundRectangle 12,12,12,2"
+                        Stroke="Transparent" Padding="10,7">
+                    <Border.BackgroundColor>
+                        <Color>#16FFFFFF</Color>
+                    </Border.BackgroundColor>
+                    <Label Text="{Binding MessageContent, Source={x:Reference this}}"
+                           TextColor="{StaticResource TextPrimary}" FontSize="13"
+                           LineBreakMode="WordWrap" />
+                </Border>
+            </VerticalStackLayout>
+
+        </HorizontalStackLayout>
+
+        <!-- My messages (right-aligned) -->
+        <HorizontalStackLayout
+            IsVisible="{Binding IsFromCurrentUser, Source={x:Reference this}}"
+            VerticalOptions="Start" HorizontalOptions="End"
+            Spacing="0" Margin="48,0,4,0">
+
+            <Border StrokeShape="RoundRectangle 12,12,2,12"
+                    Stroke="Transparent" Padding="10,7">
+                <Border.BackgroundColor>
+                    <Color>#1A5EFFD8</Color>
+                </Border.BackgroundColor>
+                <Label Text="{Binding MessageContent, Source={x:Reference this}}"
+                       TextColor="{StaticResource TextPrimary}" FontSize="13"
+                       LineBreakMode="WordWrap" />
+            </Border>
+
+        </HorizontalStackLayout>
+
+    </Grid>
+
+</ContentView>

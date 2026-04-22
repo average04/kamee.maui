@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:kamee.app.ViewModels"
+    xmlns:controls="clr-namespace:kamee.app.Controls"
+    xmlns:models="clr-namespace:kamee.app.Models"
+    x:Class="kamee.app.Views.Mobile.ProfilePage"
+    x:DataType="vm:ProfileViewModel"
+    BackgroundColor="{StaticResource BgPrimary}">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <!-- Header -->
+            <Grid Padding="20,52,20,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Text="Profile ✨"
+                       FontSize="22" FontAttributes="Bold"
+                       TextColor="{StaticResource TextPrimary}" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="⚙️" FontSize="22"
+                       TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
+            </Grid>
+
+            <!-- Hero section -->
+            <VerticalStackLayout HorizontalOptions="Center" Spacing="8" Margin="0,8,0,28">
+                <Grid HorizontalOptions="Center" HeightRequest="72" WidthRequest="72">
+                    <Ellipse HeightRequest="72" WidthRequest="72"
+                             HorizontalOptions="Center" VerticalOptions="Center">
+                        <Ellipse.Fill>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="{StaticResource Coral}" Offset="0" />
+                                <GradientStop Color="{StaticResource Lavender}" Offset="1" />
+                            </LinearGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                    <Label Text="{Binding CurrentUser.AvatarInitials}"
+                           TextColor="White" FontSize="22" FontAttributes="Bold"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                    <!-- Shellby badge -->
+                    <Label Text="🐢" FontSize="16"
+                           HorizontalOptions="End" VerticalOptions="End"
+                           Margin="0,0,0,0" />
+                </Grid>
+
+                <Label Text="{Binding CurrentUser.Username}"
+                       FontSize="18" FontAttributes="Bold"
+                       TextColor="{StaticResource TextPrimary}"
+                       HorizontalOptions="Center" />
+
+                <Label TextColor="{StaticResource TextMuted}" FontSize="12"
+                       HorizontalOptions="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="@" />
+                            <Span Text="{Binding CurrentUser.Username}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+
+                <!-- Stats row -->
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="28" Margin="0,8,0,0">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
+                        <Label Text="0" FontSize="18" FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}"
+                               HorizontalOptions="Center" />
+                        <Label Text="Rooms" FontSize="10"
+                               TextColor="{StaticResource TextMuted}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
+                        <Label Text="0" FontSize="18" FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}"
+                               HorizontalOptions="Center" />
+                        <Label Text="Hours" FontSize="10"
+                               TextColor="{StaticResource TextMuted}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
+                        <Label Text="0" FontSize="18" FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}"
+                               HorizontalOptions="Center" />
+                        <Label Text="Friends" FontSize="10"
+                               TextColor="{StaticResource TextMuted}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Watch History section -->
+            <Label Text="WATCH HISTORY" Style="{StaticResource SectionHeader}"
+                   Margin="20,0,20,12" />
+
+            <CollectionView ItemsSource="{Binding WatchHistory}"
+                            HeightRequest="100"
+                            Margin="20,0,0,28">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:WatchHistory">
+                        <Border StrokeShape="RoundRectangle 10" Stroke="Transparent"
+                                WidthRequest="64" HeightRequest="84">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#2D0D5E" Offset="0" />
+                                    <GradientStop Color="#080514" Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Label Text="▶" FontSize="20"
+                                   HorizontalOptions="Center" VerticalOptions="Center"
+                                   TextColor="{StaticResource Mint}" />
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <Label Text="No watch history yet" TextColor="{StaticResource TextMuted}"
+                           FontSize="12" HorizontalOptions="Center" />
+                </CollectionView.EmptyView>
+            </CollectionView>
+
+            <!-- Sign out -->
+            <Border Stroke="{StaticResource Coral}" StrokeThickness="1.5"
+                    StrokeShape="RoundRectangle 26" BackgroundColor="Transparent"
+                    HeightRequest="52" Margin="20,0,20,40">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SignOutCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="Sign out" TextColor="{StaticResource Coral}"
+                       FontSize="15" FontAttributes="Bold"
+                       HorizontalOptions="Center" VerticalOptions="Center" />
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

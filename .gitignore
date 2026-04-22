@@ -1,4 +1,6 @@
 kamee.app/.vs/
+kamee.app/kamee.app/appsettings.json
 kamee.app/kamee.app/bin/Debug/net10.0-android/kamee.app.dll
 kamee.app/kamee.app/bin/
 kamee.app/kamee.app/obj/
+.claude/

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:kamee.app.ViewModels"
+    xmlns:controls="clr-namespace:kamee.app.Controls"
+    xmlns:models="clr-namespace:kamee.app.Models"
+    x:Class="kamee.app.Views.Mobile.WatchRoomPage"
+    x:DataType="vm:WatchRoomViewModel"
+    BackgroundColor="#080514">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+        <!-- Video Player -->
+        <Grid Grid.Row="0" HeightRequest="130">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                    <GradientStop Color="#2D0D5E" Offset="0" />
+                    <GradientStop Color="#000000" Offset="1" />
+                </LinearGradientBrush>
+            </Grid.Background>
+
+            <!-- Play/Pause button -->
+            <Ellipse HeightRequest="44" WidthRequest="44"
+                     Fill="{StaticResource Mint}"
+                     HorizontalOptions="Center" VerticalOptions="Center">
+                <Ellipse.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding TogglePlayCommand}" />
+                </Ellipse.GestureRecognizers>
+            </Ellipse>
+            <Label HorizontalOptions="Center" VerticalOptions="Center"
+                   FontSize="16" TextColor="{StaticResource BgPrimary}"
+                   Margin="2,0,0,0">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="▶" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+
+            <!-- Room title overlay -->
+            <VerticalStackLayout VerticalOptions="End" HorizontalOptions="Start"
+                                 Margin="12,0,0,8" Spacing="0">
+                <Label Text="{Binding RoomName}"
+                       TextColor="White" FontSize="11" FontAttributes="Bold" />
+                <Label Text="0:00" TextColor="{StaticResource TextMuted}" FontSize="10" />
+            </VerticalStackLayout>
+
+            <!-- Progress bar -->
+            <BoxView BackgroundColor="#333" HeightRequest="3"
+                     VerticalOptions="End" HorizontalOptions="Fill" Margin="0,0,0,0" />
+            <BoxView BackgroundColor="{StaticResource Mint}" HeightRequest="3"
+                     VerticalOptions="End" HorizontalOptions="Start"
+                     WidthRequest="60" Margin="0,0,0,0" />
+        </Grid>
+
+        <!-- Viewer strip -->
+        <HorizontalStackLayout Grid.Row="1" Padding="16,10" Spacing="8">
+            <Label Text="🐢" FontSize="14" VerticalOptions="Center" />
+            <Label Text="Watching now 🐢" TextColor="{StaticResource TextMuted}"
+                   FontSize="11" VerticalOptions="Center" />
+            <Border StrokeShape="RoundRectangle 12" Stroke="Transparent"
+                    BackgroundColor="#331AFF7EB3" Padding="10,4" HorizontalOptions="End">
+                <Label Text="+ Invite" TextColor="{StaticResource Coral}" FontSize="11" />
+            </Border>
+        </HorizontalStackLayout>
+
+        <!-- Chat area -->
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Messages}"
+                        x:Name="messagesView"
+                        Margin="0,4,0,4">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Message">
+                    <controls:ChatBubble
+                        MessageContent="{Binding Content}"
+                        SenderName="{Binding Username}"
+                        AvatarInitials="{Binding AvatarInitials}"
+                        IsFromCurrentUser="{Binding IsFromCurrentUser}"
+                        Margin="12,0" />
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Chat input -->
+        <Border Grid.Row="3"
+                BackgroundColor="#0A0718"
+                Stroke="{StaticResource BorderColor}" StrokeThickness="1"
+                Padding="12,8">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="0" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+
+                <Label Grid.Column="0" Text="😊" FontSize="20"
+                       VerticalOptions="Center" TextColor="{StaticResource TextMuted}" />
+
+                <Border Grid.Column="1"
+                        StrokeShape="RoundRectangle 20"
+                        Stroke="{StaticResource BorderColor}"
+                        BackgroundColor="#16FFFFFF" HeightRequest="38">
+                    <Entry Text="{Binding MessageInput}"
+                           Placeholder="Say something..."
+                           PlaceholderColor="{StaticResource TextMuted}"
+                           TextColor="{StaticResource TextPrimary}"
+                           BackgroundColor="Transparent"
+                           FontSize="13" Margin="12,0"
+                           ReturnCommand="{Binding SendMessageCommand}" />
+                </Border>
+
+                <!-- Send button -->
+                <Ellipse Grid.Column="2" HeightRequest="38" WidthRequest="38">
+                    <Ellipse.Fill>
+                        <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                            <GradientStop Color="{StaticResource Mint}" Offset="0" />
+                            <GradientStop Color="{StaticResource MintDark}" Offset="1" />
+                        </LinearGradientBrush>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <Label Grid.Column="2" Text="➤" FontSize="14"
+                       TextColor="{StaticResource BgPrimary}"
+                       HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SendMessageCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+
+            </Grid>
+        </Border>
+
+    </Grid>
+
+</ContentPage>

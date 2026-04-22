@@ -3,12 +3,39 @@
     x:Class="kamee.app.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:kamee.app"
-    Title="kamee.app">
+    xmlns:viewsMobile="clr-namespace:kamee.app.Views.Mobile"
+    xmlns:viewsDesktop="clr-namespace:kamee.app.Views.Desktop"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{StaticResource BgPrimary}">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <!-- Pre-auth (no tab bar) -->
+    <ShellContent Route="splash"
+                  ContentTemplate="{DataTemplate viewsMobile:SplashPage}"
+                  Shell.NavBarIsVisible="False" />
+
+    <ShellContent Route="login"
+                  ContentTemplate="{DataTemplate viewsMobile:LoginPage}"
+                  Shell.NavBarIsVisible="False" />
+
+    <!-- Desktop full-screen (no tab bar) -->
+    <ShellContent Route="homedesktop"
+                  ContentTemplate="{DataTemplate viewsDesktop:HomeDesktopPage}"
+                  Shell.NavBarIsVisible="False" />
+
+    <!-- Mobile tab bar -->
+    <TabBar Route="main">
+        <Tab Route="home" Title="Home">
+            <ShellContent ContentTemplate="{DataTemplate viewsMobile:HomePage}"
+                          Shell.NavBarIsVisible="False" />
+        </Tab>
+        <Tab Route="createtab" Title="+">
+            <ShellContent ContentTemplate="{DataTemplate viewsMobile:CreateRoomPage}"
+                          Shell.NavBarIsVisible="False" />
+        </Tab>
+        <Tab Route="profile" Title="Profile">
+            <ShellContent ContentTemplate="{DataTemplate viewsMobile:ProfilePage}"
+                          Shell.NavBarIsVisible="False" />
+        </Tab>
+    </TabBar>
 
 </Shell>

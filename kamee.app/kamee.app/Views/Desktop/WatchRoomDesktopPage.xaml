@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:kamee.app.ViewModels"
+    xmlns:controls="clr-namespace:kamee.app.Controls"
+    xmlns:models="clr-namespace:kamee.app.Models"
+    x:Class="kamee.app.Views.Desktop.WatchRoomDesktopPage"
+    x:DataType="vm:WatchRoomViewModel"
+    BackgroundColor="#080514">
+
+    <Grid ColumnDefinitions="56,*,280">
+
+        <!-- Icon sidebar -->
+        <Border Grid.Column="0" BackgroundColor="#0A0718"
+                Stroke="{StaticResource BorderColor}" StrokeThickness="0">
+            <Border.StrokeShape><RoundRectangle CornerRadius="0" /></Border.StrokeShape>
+            <VerticalStackLayout Padding="0,20" Spacing="4" HorizontalOptions="Center">
+                <Label Text="k" FontSize="20" FontAttributes="Bold"
+                       TextColor="{StaticResource Mint}"
+                       HorizontalOptions="Center" Margin="0,0,0,24" />
+                <!-- Icon buttons -->
+                <Border StrokeShape="RoundRectangle 10" Stroke="Transparent"
+                        BackgroundColor="#1A5EFFD8" HeightRequest="40" WidthRequest="40"
+                        HorizontalOptions="Center">
+                    <Label Text="▶" FontSize="16" TextColor="{StaticResource Mint}"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <Border StrokeShape="RoundRectangle 10" Stroke="Transparent"
+                        BackgroundColor="Transparent" HeightRequest="40" WidthRequest="40"
+                        HorizontalOptions="Center" Margin="0,4">
+                    <Label Text="💬" FontSize="16"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <Border StrokeShape="RoundRectangle 10" Stroke="Transparent"
+                        BackgroundColor="Transparent" HeightRequest="40" WidthRequest="40"
+                        HorizontalOptions="Center">
+                    <Label Text="👥" FontSize="16"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <!-- User avatar at bottom -->
+                <controls:AvatarControl
+                    Initials="ME" Size="36" FontSize="12"
+                    AvatarColor="{StaticResource BgTertiary}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="EndAndExpand" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Video area -->
+        <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
+
+            <!-- Top bar -->
+            <Grid Grid.Row="0" Padding="20,16" ColumnDefinitions="Auto,*,Auto">
+                <Label Grid.Column="0" Text="←" FontSize="20"
+                       TextColor="{StaticResource TextPrimary}" VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding LeaveRoomCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
+                    <Label Text="{Binding RoomName}"
+                           TextColor="White" FontSize="15" FontAttributes="Bold"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+                <HorizontalStackLayout Grid.Column="2" Spacing="10" VerticalOptions="Center">
+                    <Border StrokeShape="RoundRectangle 14" Stroke="Transparent">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                <GradientStop Color="{StaticResource Mint}" Offset="0" />
+                                <GradientStop Color="{StaticResource MintDark}" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Label Text="+ Invite" TextColor="{StaticResource BgPrimary}"
+                               FontSize="12" FontAttributes="Bold" Margin="12,6" />
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 14" Stroke="{StaticResource BorderColor}"
+                            BackgroundColor="Transparent" Padding="12,6">
+                        <Label Text="Share" TextColor="{StaticResource TextPrimary}" FontSize="12" />
+                    </Border>
+                </HorizontalStackLayout>
+            </Grid>
+
+            <!-- Video player -->
+            <Grid Grid.Row="1" Margin="20,0">
+                <Border StrokeShape="RoundRectangle 12" Stroke="Transparent">
+                    <Border.Background>
+                        <RadialGradientBrush Center="0.5,0.4" Radius="0.7">
+                            <GradientStop Color="#2D0D5E" Offset="0" />
+                            <GradientStop Color="#080514" Offset="1" />
+                        </RadialGradientBrush>
+                    </Border.Background>
+                    <Grid>
+                        <Ellipse HeightRequest="64" WidthRequest="64"
+                                 Fill="{StaticResource Mint}"
+                                 HorizontalOptions="Center" VerticalOptions="Center">
+                            <Ellipse.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding TogglePlayCommand}" />
+                            </Ellipse.GestureRecognizers>
+                        </Ellipse>
+                        <Label Text="▶" FontSize="22" TextColor="{StaticResource BgPrimary}"
+                               HorizontalOptions="Center" VerticalOptions="Center"
+                               Margin="3,0,0,0" />
+                        <Label Text="{Binding RoomName}" TextColor="White"
+                               FontSize="14" FontAttributes="Bold"
+                               HorizontalOptions="Center" VerticalOptions="End"
+                               Margin="0,0,0,20" />
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Controls bar -->
+            <Grid Grid.Row="2" Padding="20,12" ColumnDefinitions="Auto,*,Auto">
+                <Label Grid.Column="0" Text="▶" FontSize="18"
+                       TextColor="{StaticResource TextPrimary}" VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding TogglePlayCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <!-- Progress bar -->
+                <Grid Grid.Column="1" VerticalOptions="Center" Margin="16,0">
+                    <BoxView BackgroundColor="{StaticResource BorderColor}" HeightRequest="3" VerticalOptions="Center" />
+                    <Border StrokeShape="RoundRectangle 2" Stroke="Transparent" HeightRequest="3"
+                            VerticalOptions="Center" HorizontalOptions="Start" WidthRequest="120">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                <GradientStop Color="{StaticResource Mint}" Offset="0" />
+                                <GradientStop Color="{StaticResource Lavender}" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    <Ellipse HeightRequest="12" WidthRequest="12" Fill="White"
+                             HorizontalOptions="Start" VerticalOptions="Center" Margin="116,0,0,0" />
+                </Grid>
+                <Label Grid.Column="2" Text="0:00 / 0:00"
+                       TextColor="{StaticResource TextMuted}" FontSize="11"
+                       VerticalOptions="Center" />
+            </Grid>
+
+        </Grid>
+
+        <!-- Chat panel -->
+        <Border Grid.Column="2" BackgroundColor="{StaticResource BgSecondary}"
+                Stroke="{StaticResource BorderColor}" StrokeThickness="1">
+            <Border.StrokeShape><RoundRectangle CornerRadius="0" /></Border.StrokeShape>
+            <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="0">
+
+                <!-- Header -->
+                <Grid Grid.Row="0" Padding="16,16,16,12" ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0" Text="Room chat" TextColor="{StaticResource TextPrimary}"
+                           FontSize="15" FontAttributes="Bold" VerticalOptions="Center" />
+                    <Border Grid.Column="1" StrokeShape="RoundRectangle 10"
+                            Stroke="Transparent" BackgroundColor="#1A5EFFD8" Padding="8,4">
+                        <Label Text="online" TextColor="{StaticResource Mint}" FontSize="11" />
+                    </Border>
+                </Grid>
+
+                <!-- Tabs -->
+                <HorizontalStackLayout Grid.Row="1" Padding="16,0,16,12" Spacing="20">
+                    <Label Text="Chat" TextColor="{StaticResource Mint}"
+                           FontSize="13" FontAttributes="Bold" />
+                    <Label Text="Members" TextColor="{StaticResource TextSecondary}" FontSize="13" />
+                    <Label Text="Queue" TextColor="{StaticResource TextSecondary}" FontSize="13" />
+                </HorizontalStackLayout>
+
+                <!-- Messages -->
+                <CollectionView Grid.Row="2" ItemsSource="{Binding Messages}" Margin="0,4,0,4">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Message">
+                            <controls:ChatBubble
+                                MessageContent="{Binding Content}"
+                                SenderName="{Binding Username}"
+                                AvatarInitials="{Binding AvatarInitials}"
+                                IsFromCurrentUser="{Binding IsFromCurrentUser}"
+                                Margin="10,0" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Input -->
+                <Grid Grid.Row="3" Padding="10,8" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                    <Label Grid.Column="0" Text="😊" FontSize="18"
+                           TextColor="{StaticResource TextMuted}" VerticalOptions="Center" />
+                    <Border Grid.Column="1" StrokeShape="RoundRectangle 18"
+                            Stroke="{StaticResource BorderColor}" BackgroundColor="#10FFFFFF"
+                            HeightRequest="36">
+                        <Entry Text="{Binding MessageInput}"
+                               Placeholder="Message..."
+                               PlaceholderColor="{StaticResource TextMuted}"
+                               TextColor="{StaticResource TextPrimary}"
+                               BackgroundColor="Transparent" FontSize="13" Margin="10,0"
+                               ReturnCommand="{Binding SendMessageCommand}" />
+                    </Border>
+                    <Ellipse Grid.Column="2" HeightRequest="36" WidthRequest="36">
+                        <Ellipse.Fill>
+                            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                <GradientStop Color="{StaticResource Mint}" Offset="0" />
+                                <GradientStop Color="{StaticResource MintDark}" Offset="1" />
+                            </LinearGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                    <Label Grid.Column="2" Text="➤" FontSize="14"
+                           TextColor="{StaticResource BgPrimary}"
+                           HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SendMessageCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+
+            </Grid>
+        </Border>
+
+    </Grid>
+
+</ContentPage>

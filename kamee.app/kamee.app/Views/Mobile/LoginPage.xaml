@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:kamee.app.ViewModels"
+    x:Class="kamee.app.Views.Mobile.LoginPage"
+    x:DataType="vm:LoginViewModel"
+    BackgroundColor="{StaticResource BgPrimary}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="28,52,28,40" Spacing="0">
+
+            <!-- Back arrow -->
+            <Label Text="←" TextColor="{StaticResource TextPrimary}"
+                   FontSize="24" Margin="0,0,0,32">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                </Label.GestureRecognizers>
+            </Label>
+
+            <!-- Title -->
+            <Label Text="Welcome back 🐢"
+                   FontSize="24" FontAttributes="Bold"
+                   TextColor="{StaticResource TextPrimary}"
+                   Margin="0,0,0,6" />
+
+            <!-- Subtitle -->
+            <Label TextColor="{StaticResource TextSecondary}" FontSize="13" Margin="0,0,0,32">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="Sign in to your " />
+                        <Span Text="kamee" TextColor="{StaticResource Mint}" />
+                        <Span Text=" account" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+
+            <!-- Username field (sign-up mode only) -->
+            <VerticalStackLayout IsVisible="{Binding IsSignUpMode}" Spacing="0">
+                <Label Text="Username" TextColor="{StaticResource TextSecondary}"
+                       FontSize="12" Margin="4,0,0,6" />
+                <Border Style="{StaticResource InputBorder}">
+                    <Entry Text="{Binding Username}"
+                           Placeholder="your_username"
+                           Style="{StaticResource KameeEntry}" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Email -->
+            <Label Text="Email" TextColor="{StaticResource TextSecondary}"
+                   FontSize="12" Margin="4,0,0,6" />
+            <Border Style="{StaticResource InputBorder}">
+                <Entry Text="{Binding Email}"
+                       Placeholder="you@example.com"
+                       Keyboard="Email"
+                       Style="{StaticResource KameeEntry}" />
+            </Border>
+
+            <!-- Password -->
+            <Label Text="Password" TextColor="{StaticResource TextSecondary}"
+                   FontSize="12" Margin="4,0,0,6" />
+            <Border Style="{StaticResource InputBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Entry Grid.Column="0"
+                           Text="{Binding Password}"
+                           Placeholder="••••••••"
+                           IsPassword="{Binding IsPasswordVisible, Converter={StaticResource InvertedBoolConverter}}"
+                           Style="{StaticResource KameeEntry}" />
+                    <Label Grid.Column="1" Text="👁" FontSize="16"
+                           TextColor="{StaticResource TextMuted}"
+                           VerticalOptions="Center" Margin="0,0,12,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding TogglePasswordVisibilityCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+            </Border>
+
+            <!-- Forgot password (sign-in mode only) -->
+            <Label Text="Forgot password?"
+                   TextColor="{StaticResource Coral}"
+                   FontSize="12"
+                   HorizontalOptions="End"
+                   Margin="0,0,0,28"
+                   IsVisible="{Binding IsSignUpMode, Converter={StaticResource InvertedBoolConverter}}" />
+
+            <!-- Error message -->
+            <Label Text="{Binding ErrorMessage}"
+                   TextColor="{StaticResource Coral}"
+                   FontSize="12"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}"
+                   Margin="0,0,0,12" />
+
+            <!-- Submit button -->
+            <Border Style="{StaticResource MintPillBorder}" Margin="0,0,0,24">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                        <GradientStop Color="{StaticResource Mint}" Offset="0" />
+                        <GradientStop Color="{StaticResource MintDark}" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SubmitCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="{Binding IsSignUpMode, Converter={StaticResource BoolToSignInLabelConverter}}"
+                       TextColor="{StaticResource BgPrimary}"
+                       FontSize="15" FontAttributes="Bold"
+                       HorizontalOptions="Center" VerticalOptions="Center" />
+            </Border>
+
+            <!-- Toggle mode -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="2">
+                <Label Text="{Binding IsSignUpMode, Converter={StaticResource BoolToToggleLinkConverter}}"
+                       TextColor="{StaticResource TextSecondary}" FontSize="13" />
+                <Label Text="{Binding IsSignUpMode, Converter={StaticResource BoolToToggleActionConverter}}"
+                       TextColor="{StaticResource Lavender}" FontSize="13">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToggleModeCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
