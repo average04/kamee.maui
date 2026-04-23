@@ -22,6 +22,15 @@ namespace kamee.app.Services
             return response.Models;
         }
 
+        public async Task<Room?> GetRoomAsync(string roomId)
+        {
+            var response = await _supabase.Client
+                .From<Room>()
+                .Filter("id", Postgrest.Constants.Operator.Equals, roomId)
+                .Single();
+            return response;
+        }
+
         public async Task<List<User>> GetFriendsWatchingAsync(string userId)
         {
             var response = await _supabase.Client
@@ -60,12 +69,14 @@ namespace kamee.app.Services
             };
             await _supabase.Client.From<RoomMember>().Insert(member);
 
-            // Update user's current_room_id
             await _supabase.Client
                 .From<User>()
                 .Filter("id", Postgrest.Constants.Operator.Equals, userId)
                 .Set(u => u.CurrentRoomId, roomId)
                 .Update();
+
+            await _supabase.Client.Rpc("increment_viewer_count",
+                new Dictionary<string, object> { ["room_id"] = roomId });
         }
 
         public async Task LeaveRoomAsync(string roomId, string userId)
@@ -81,6 +92,29 @@ namespace kamee.app.Services
                 .Filter("id", Postgrest.Constants.Operator.Equals, userId)
                 .Set(u => u.CurrentRoomId, (string?)null)
                 .Update();
+
+            await _supabase.Client.Rpc("decrement_viewer_count",
+                new Dictionary<string, object> { ["room_id"] = roomId });
+        }
+
+        public async Task<List<WatchHistory>> GetWatchHistoryAsync(string userId)
+        {
+            var response = await _supabase.Client
+                .From<WatchHistory>()
+                .Filter("user_id", Postgrest.Constants.Operator.Equals, userId)
+                .Order("watched_at", Postgrest.Constants.Ordering.Descending)
+                .Limit(20)
+                .Get();
+            return response.Models;
+        }
+
+        public async Task<int> GetRoomCountAsync(string userId)
+        {
+            var response = await _supabase.Client
+                .From<RoomMember>()
+                .Filter("user_id", Postgrest.Constants.Operator.Equals, userId)
+                .Get();
+            return response.Models.Count;
         }
     }
 }

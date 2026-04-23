@@ -212,7 +212,9 @@
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:Room">
-                            <controls:RoomCard Room="{Binding}" />
+                            <controls:RoomCard
+                                Room="{Binding}"
+                                TapCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.JoinRoomCommand}" />
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                     <CollectionView.EmptyView>

@@ -17,18 +17,14 @@ namespace kamee.app.Services
 
         public async Task<Supabase.Gotrue.Session?> SignUpAsync(string email, string password, string username)
         {
-            var session = await _supabase.Client.Auth.SignUp(email, password);
-            if (session?.User != null)
+            // Pass username in metadata so the DB trigger picks it up.
+            // The trigger runs as security definer and creates the profile,
+            // avoiding any RLS issues with an unauthenticated client.
+            var options = new Supabase.Gotrue.SignUpOptions
             {
-                var profile = new User
-                {
-                    Id = session.User.Id ?? string.Empty,
-                    Username = username,
-                    CreatedAt = DateTime.UtcNow
-                };
-                await _supabase.Client.From<User>().Insert(profile);
-            }
-            return session;
+                Data = new Dictionary<string, object> { ["username"] = username }
+            };
+            return await _supabase.Client.Auth.SignUp(email, password, options);
         }
 
         public async Task<Supabase.Gotrue.Session?> SignInAsync(string email, string password)

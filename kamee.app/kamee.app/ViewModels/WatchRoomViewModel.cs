@@ -6,13 +6,13 @@ using kamee.app.Services;
 
 namespace kamee.app.ViewModels
 {
-    [QueryProperty(nameof(RoomId), "roomId")]
     public partial class WatchRoomViewModel : BaseViewModel
     {
         private readonly ChatService _chatService;
         private readonly SyncService _syncService;
         private readonly RoomService _roomService;
         private readonly AuthService _authService;
+        private bool _isLoaded;
 
         [ObservableProperty]
         private string _roomId = string.Empty;
@@ -50,10 +50,15 @@ namespace kamee.app.ViewModels
         public async Task LoadAsync()
         {
             if (string.IsNullOrEmpty(RoomId)) return;
+            if (_isLoaded) return;
+            _isLoaded = true;
             IsBusy = true;
 
             try
             {
+                var room = await _roomService.GetRoomAsync(RoomId);
+                RoomName = room?.Name ?? string.Empty;
+
                 var messages = await _chatService.GetMessagesAsync(RoomId);
                 Messages = new ObservableCollection<Message>(messages);
 
@@ -64,6 +69,10 @@ namespace kamee.app.ViewModels
                     position => { PlaybackPosition = position; IsPlaying = true; },
                     position => { PlaybackPosition = position; IsPlaying = false; },
                     position => { PlaybackPosition = position; });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"WatchRoom load error: {ex.Message}");
             }
             finally
             {
@@ -93,6 +102,13 @@ namespace kamee.app.ViewModels
                 await _syncService.BroadcastPlayAsync(RoomId, PlaybackPosition);
             else
                 await _syncService.BroadcastPauseAsync(RoomId, PlaybackPosition);
+        }
+
+        public async Task CleanupAsync()
+        {
+            await _chatService.UnsubscribeAsync();
+            await _syncService.UnsubscribeAsync();
+            _isLoaded = false;
         }
 
         [RelayCommand]

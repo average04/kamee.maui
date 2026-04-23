@@ -64,7 +64,7 @@
                 <!-- Stats row -->
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="28" Margin="0,8,0,0">
                     <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
-                        <Label Text="0" FontSize="18" FontAttributes="Bold"
+                        <Label Text="{Binding RoomCount}" FontSize="18" FontAttributes="Bold"
                                TextColor="{StaticResource TextPrimary}"
                                HorizontalOptions="Center" />
                         <Label Text="Rooms" FontSize="10"

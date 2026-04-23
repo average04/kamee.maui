@@ -67,24 +67,22 @@
 
                 <!-- Tab row -->
                 <HorizontalStackLayout Padding="20,0" Spacing="24" Margin="0,0,0,20">
-                    <Label Text="For you" FontSize="14" FontAttributes="Bold">
-                        <Label.TextColor>
-                            <MultiBinding Converter="{x:Static x:Null}">
-                                <Binding Path="ActiveTab" />
-                            </MultiBinding>
-                        </Label.TextColor>
+                    <Label Text="For you" FontSize="14" FontAttributes="Bold"
+                           TextColor="{Binding ActiveTab, Converter={StaticResource ActiveTabColorConverter}, ConverterParameter='For you'}">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SetActiveTabCommand}"
                                                   CommandParameter="For you" />
                         </Label.GestureRecognizers>
                     </Label>
-                    <Label Text="Friends" FontSize="14" TextColor="{StaticResource TextSecondary}">
+                    <Label Text="Friends" FontSize="14"
+                           TextColor="{Binding ActiveTab, Converter={StaticResource ActiveTabColorConverter}, ConverterParameter='Friends'}">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SetActiveTabCommand}"
                                                   CommandParameter="Friends" />
                         </Label.GestureRecognizers>
                     </Label>
-                    <Label Text="Trending" FontSize="14" TextColor="{StaticResource TextSecondary}">
+                    <Label Text="Trending" FontSize="14"
+                           TextColor="{Binding ActiveTab, Converter={StaticResource ActiveTabColorConverter}, ConverterParameter='Trending'}">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SetActiveTabCommand}"
                                                   CommandParameter="Trending" />
@@ -104,7 +102,9 @@
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:Room">
-                            <controls:RoomCard Room="{Binding}" />
+                            <controls:RoomCard
+                                Room="{Binding}"
+                                TapCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.JoinRoomCommand}" />
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                     <CollectionView.EmptyView>

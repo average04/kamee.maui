@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Postgrest.Attributes;
 using Postgrest.Models;
 
@@ -24,10 +25,10 @@ namespace kamee.app.Models
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
-        // Computed — not stored in DB
+        [JsonIgnore]
         public string AvatarInitials => Username.Length >= 2 ? Username[..2].ToUpper() : "??";
 
-        // Populated from auth session, not from profiles table
+        [JsonIgnore]
         public string Email { get; set; } = string.Empty;
     }
 }

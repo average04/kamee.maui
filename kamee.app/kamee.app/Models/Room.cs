@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Postgrest.Attributes;
 using Postgrest.Models;
 
@@ -33,8 +34,10 @@ namespace kamee.app.Models
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
-        // Populated after query — not DB columns
+        [JsonIgnore]
         public List<User> Viewers { get; set; } = new();
+
+        [JsonIgnore]
         public string HostUsername { get; set; } = string.Empty;
     }
 }

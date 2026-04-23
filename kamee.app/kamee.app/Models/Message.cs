@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Postgrest.Attributes;
 using Postgrest.Models;
 
@@ -21,9 +22,13 @@ namespace kamee.app.Models
         [Column("sent_at")]
         public DateTime SentAt { get; set; }
 
-        // Populated after query — not DB columns
+        [JsonIgnore]
         public string Username { get; set; } = string.Empty;
+
+        [JsonIgnore]
         public string AvatarInitials { get; set; } = string.Empty;
+
+        [JsonIgnore]
         public bool IsFromCurrentUser { get; set; }
     }
 }

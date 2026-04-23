@@ -24,11 +24,36 @@ namespace kamee.app.Services
                 .Order("sent_at", Postgrest.Constants.Ordering.Ascending)
                 .Get();
 
+            var messages = response.Models;
             var currentUserId = _authService.GetCurrentUserId();
-            foreach (var msg in response.Models)
-                msg.IsFromCurrentUser = msg.UserId == currentUserId;
 
-            return response.Models;
+            var userIds = messages.Select(m => m.UserId).Distinct().ToList();
+            var profiles = await FetchProfilesAsync(userIds);
+
+            foreach (var msg in messages)
+            {
+                msg.IsFromCurrentUser = msg.UserId == currentUserId;
+                if (profiles.TryGetValue(msg.UserId, out var profile))
+                {
+                    msg.Username = profile.Username;
+                    msg.AvatarInitials = profile.AvatarInitials;
+                }
+            }
+
+            return messages;
+        }
+
+        private async Task<Dictionary<string, User>> FetchProfilesAsync(List<string> userIds)
+        {
+            if (userIds.Count == 0) return new Dictionary<string, User>();
+
+            var csv = string.Join(",", userIds);
+            var response = await _supabase.Client
+                .From<User>()
+                .Filter("id", Postgrest.Constants.Operator.In, $"({csv})")
+                .Get();
+
+            return response.Models.ToDictionary(u => u.Id);
         }
 
         public async Task SendMessageAsync(string roomId, string content)
@@ -56,13 +81,28 @@ namespace kamee.app.Services
                 PostgresChangesOptions.ListenType.Inserts,
                 $"room_id=eq.{roomId}"));
 
-            _channel.AddPostgresChangeHandler(PostgresChangesOptions.ListenType.Inserts, (_, change) =>
+            _channel.AddPostgresChangeHandler(PostgresChangesOptions.ListenType.Inserts, async (_, change) =>
             {
-                if (change.Model<Message>() is Message msg)
+                if (change.Model<Message>() is not Message msg) return;
+
+                msg.IsFromCurrentUser = msg.UserId == _authService.GetCurrentUserId();
+
+                try
                 {
-                    msg.IsFromCurrentUser = msg.UserId == _authService.GetCurrentUserId();
-                    onMessage(msg);
+                    var profileResponse = await _supabase.Client
+                        .From<User>()
+                        .Filter("id", Postgrest.Constants.Operator.Equals, msg.UserId)
+                        .Single();
+
+                    if (profileResponse != null)
+                    {
+                        msg.Username = profileResponse.Username;
+                        msg.AvatarInitials = profileResponse.AvatarInitials;
+                    }
                 }
+                catch { /* username stays empty on failure */ }
+
+                onMessage(msg);
             });
 
             await _channel.Subscribe();
