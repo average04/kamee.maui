@@ -81,60 +81,35 @@
                 </HorizontalStackLayout>
             </Grid>
 
-            <!-- Video player -->
+            <!-- Video player (embedded, for everyone) -->
             <Grid Grid.Row="1" Margin="20,0">
-                <Border StrokeShape="RoundRectangle 12" Stroke="Transparent">
-                    <Border.Background>
-                        <RadialGradientBrush Center="0.5,0.4" Radius="0.7">
-                            <GradientStop Color="#2D0D5E" Offset="0" />
-                            <GradientStop Color="#080514" Offset="1" />
-                        </RadialGradientBrush>
-                    </Border.Background>
-                    <Grid>
-                        <Ellipse HeightRequest="64" WidthRequest="64"
-                                 Fill="{StaticResource Mint}"
-                                 HorizontalOptions="Center" VerticalOptions="Center">
-                            <Ellipse.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding TogglePlayCommand}" />
-                            </Ellipse.GestureRecognizers>
-                        </Ellipse>
-                        <Label Text="▶" FontSize="22" TextColor="{StaticResource BgPrimary}"
-                               HorizontalOptions="Center" VerticalOptions="Center"
-                               Margin="3,0,0,0" />
-                        <Label Text="{Binding RoomName}" TextColor="White"
-                               FontSize="14" FontAttributes="Bold"
-                               HorizontalOptions="Center" VerticalOptions="End"
-                               Margin="0,0,0,20" />
-                    </Grid>
+                <Border StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="Black">
+                    <WebView x:Name="playerWebView"
+                             BackgroundColor="Black"
+                             Navigating="OnPlayerNavigating"
+                             Navigated="OnPlayerNavigated" />
                 </Border>
             </Grid>
 
-            <!-- Controls bar -->
-            <Grid Grid.Row="2" Padding="20,12" ColumnDefinitions="Auto,*,Auto">
-                <Label Grid.Column="0" Text="▶" FontSize="18"
-                       TextColor="{StaticResource TextPrimary}" VerticalOptions="Center">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding TogglePlayCommand}" />
-                    </Label.GestureRecognizers>
-                </Label>
-                <!-- Progress bar -->
-                <Grid Grid.Column="1" VerticalOptions="Center" Margin="16,0">
-                    <BoxView BackgroundColor="{StaticResource BorderColor}" HeightRequest="3" VerticalOptions="Center" />
-                    <Border StrokeShape="RoundRectangle 2" Stroke="Transparent" HeightRequest="3"
-                            VerticalOptions="Center" HorizontalOptions="Start" WidthRequest="120">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                                <GradientStop Color="{StaticResource Mint}" Offset="0" />
-                                <GradientStop Color="{StaticResource Lavender}" Offset="1" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                    </Border>
-                    <Ellipse HeightRequest="12" WidthRequest="12" Fill="White"
-                             HorizontalOptions="Start" VerticalOptions="Center" Margin="116,0,0,0" />
+            <!-- Host YouTube browser (host only) -->
+            <Grid Grid.Row="2" RowDefinitions="Auto,*" Margin="20,8,20,0"
+                  IsVisible="{Binding IsHost}" HeightRequest="300">
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8"
+                      BackgroundColor="#111" Padding="8,4">
+                    <Entry x:Name="hostUrlEntry" Grid.Column="0"
+                           Text="https://www.youtube.com"
+                           TextColor="White" BackgroundColor="Transparent"
+                           FontSize="12" Completed="OnHostUrlCompleted" />
+                    <Label Grid.Column="1" Text="Go" TextColor="{StaticResource Mint}"
+                           FontSize="13" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnHostGoTapped" />
+                        </Label.GestureRecognizers>
+                    </Label>
                 </Grid>
-                <Label Grid.Column="2" Text="0:00 / 0:00"
-                       TextColor="{StaticResource TextMuted}" FontSize="11"
-                       VerticalOptions="Center" />
+                <WebView x:Name="hostWebView" Grid.Row="1"
+                         Source="https://www.youtube.com"
+                         Navigating="OnHostNavigating" />
             </Grid>
 
         </Grid>

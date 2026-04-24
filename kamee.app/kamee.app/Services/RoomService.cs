@@ -40,7 +40,7 @@ namespace kamee.app.Services
             return response.Models;
         }
 
-        public async Task<Room?> CreateRoomAsync(string name, string platform, bool isPrivate)
+        public async Task<Room?> CreateRoomAsync(string name, string platform, string? videoUrl, bool isPrivate)
         {
             var userId = _authService.GetCurrentUserId()
                 ?? throw new InvalidOperationException("User not logged in");
@@ -50,6 +50,7 @@ namespace kamee.app.Services
                 Name = name,
                 HostId = userId,
                 StreamingPlatform = platform,
+                VideoUrl = string.IsNullOrWhiteSpace(videoUrl) ? null : videoUrl.Trim(),
                 IsPrivate = isPrivate,
                 IsLive = true,
                 CreatedAt = DateTime.UtcNow
@@ -95,6 +96,15 @@ namespace kamee.app.Services
 
             await _supabase.Client.Rpc("decrement_viewer_count",
                 new Dictionary<string, object> { ["room_id"] = roomId });
+        }
+
+        public async Task UpdateVideoUrlAsync(string roomId, string videoUrl)
+        {
+            await _supabase.Client
+                .From<Room>()
+                .Filter("id", Postgrest.Constants.Operator.Equals, roomId)
+                .Set(r => r.VideoUrl, videoUrl)
+                .Update();
         }
 
         public async Task<List<WatchHistory>> GetWatchHistoryAsync(string userId)

@@ -23,6 +23,17 @@ namespace kamee.app
                 Constants.SupabaseAnonKey = config["Supabase:AnonKey"] ?? string.Empty;
             }
 
+            // Override WebView2 user agent so YouTube doesn't block embeds
+#if WINDOWS
+            Microsoft.Maui.Handlers.WebViewHandler.Mapper.AppendToMapping("KameeUA", (handler, view) =>
+            {
+                if (handler.PlatformView is Microsoft.UI.Xaml.Controls.WebView2 wv2)
+                    wv2.CoreWebView2Initialized += (s, _) =>
+                        s.CoreWebView2.Settings.UserAgent =
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+            });
+#endif
+
             builder
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
@@ -40,7 +51,7 @@ namespace kamee.app
             builder.Services.AddSingleton<Services.AuthService>();
             builder.Services.AddSingleton<Services.RoomService>();
             builder.Services.AddSingleton<Services.ChatService>();
-            builder.Services.AddSingleton<Services.SyncService>();
+            builder.Services.AddTransient<Services.SyncService>();
 
             builder.Services.AddTransient<ViewModels.SplashViewModel>();
             builder.Services.AddTransient<ViewModels.LoginViewModel>();

@@ -18,6 +18,9 @@ namespace kamee.app.ViewModels
         private bool _isPrivate;
 
         [ObservableProperty]
+        private string _videoUrl = string.Empty;
+
+        [ObservableProperty]
         private string? _errorMessage;
 
         public List<string> Platforms { get; } = new()
@@ -52,7 +55,7 @@ namespace kamee.app.ViewModels
 
             try
             {
-                var room = await _roomService.CreateRoomAsync(RoomName, SelectedPlatform, IsPrivate);
+                var room = await _roomService.CreateRoomAsync(RoomName, SelectedPlatform, VideoUrl, IsPrivate);
                 if (room != null)
                 {
                     if (DeviceInfo.Idiom == DeviceIdiom.Desktop)

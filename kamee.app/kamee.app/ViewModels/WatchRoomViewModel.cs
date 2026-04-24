@@ -35,6 +35,35 @@ namespace kamee.app.ViewModels
         [ObservableProperty]
         private ObservableCollection<User> _viewers = new();
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(YoutubeVideoId))]
+        private string _videoUrl = string.Empty;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsNotHost))]
+        private bool _isHost;
+
+        public bool IsNotHost => !_isHost;
+
+        public string YoutubeVideoId => ExtractYoutubeId(VideoUrl);
+
+        private static readonly System.Text.RegularExpressions.Regex YoutubeIdRegex = new(
+            @"(?:youtube\.com/watch\?.*v=|youtu\.be/|youtube\.com/embed/|youtube\.com/shorts/)([a-zA-Z0-9_-]{11})",
+            System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        private static string ExtractYoutubeId(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url)) return string.Empty;
+            var match = YoutubeIdRegex.Match(url);
+            return match.Success ? match.Groups[1].Value : string.Empty;
+        }
+
+        // Set by the page after LoadAsync so remote sync events execute JS on the player.
+        public Action<double>? OnRemotePlay { get; set; }
+        public Action<double>? OnRemotePause { get; set; }
+        public Action<double>? OnRemoteSeek { get; set; }
+        public Action<string>? OnRemoteVideoChanged { get; set; }
+
         public WatchRoomViewModel(
             ChatService chatService,
             SyncService syncService,
@@ -58,6 +87,8 @@ namespace kamee.app.ViewModels
             {
                 var room = await _roomService.GetRoomAsync(RoomId);
                 RoomName = room?.Name ?? string.Empty;
+                VideoUrl = room?.VideoUrl ?? string.Empty;
+                IsHost = room?.HostId == _authService.GetCurrentUserId();
 
                 var messages = await _chatService.GetMessagesAsync(RoomId);
                 Messages = new ObservableCollection<Message>(messages);
@@ -66,9 +97,28 @@ namespace kamee.app.ViewModels
 
                 await _syncService.SubscribeToSyncAsync(
                     RoomId,
-                    position => { PlaybackPosition = position; IsPlaying = true; },
-                    position => { PlaybackPosition = position; IsPlaying = false; },
-                    position => { PlaybackPosition = position; });
+                    position => MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        PlaybackPosition = position;
+                        IsPlaying = true;
+                        OnRemotePlay?.Invoke(position);
+                    }),
+                    position => MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        PlaybackPosition = position;
+                        IsPlaying = false;
+                        OnRemotePause?.Invoke(position);
+                    }),
+                    position => MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        PlaybackPosition = position;
+                        OnRemoteSeek?.Invoke(position);
+                    }),
+                    videoId => MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        VideoUrl = $"https://www.youtube.com/watch?v={videoId}";
+                        OnRemoteVideoChanged?.Invoke(videoId);
+                    }));
             }
             catch (Exception ex)
             {
@@ -94,14 +144,17 @@ namespace kamee.app.ViewModels
             await _chatService.SendMessageAsync(RoomId, content);
         }
 
-        [RelayCommand]
-        private async Task TogglePlay()
+        public Task BroadcastPlayAsync(double position) =>
+            _syncService.BroadcastPlayAsync(RoomId, position);
+
+        public Task BroadcastPauseAsync(double position) =>
+            _syncService.BroadcastPauseAsync(RoomId, position);
+
+        public async Task BroadcastVideoChangedAsync(string videoId)
         {
-            IsPlaying = !IsPlaying;
-            if (IsPlaying)
-                await _syncService.BroadcastPlayAsync(RoomId, PlaybackPosition);
-            else
-                await _syncService.BroadcastPauseAsync(RoomId, PlaybackPosition);
+            VideoUrl = $"https://www.youtube.com/watch?v={videoId}";
+            await _roomService.UpdateVideoUrlAsync(RoomId, VideoUrl);
+            await _syncService.BroadcastVideoChangedAsync(RoomId, videoId);
         }
 
         public async Task CleanupAsync()
@@ -109,6 +162,10 @@ namespace kamee.app.ViewModels
             await _chatService.UnsubscribeAsync();
             await _syncService.UnsubscribeAsync();
             _isLoaded = false;
+            OnRemotePlay = null;
+            OnRemotePause = null;
+            OnRemoteSeek = null;
+            OnRemoteVideoChanged = null;
         }
 
         [RelayCommand]
@@ -118,8 +175,7 @@ namespace kamee.app.ViewModels
             if (userId != null)
                 await _roomService.LeaveRoomAsync(RoomId, userId);
 
-            await _chatService.UnsubscribeAsync();
-            await _syncService.UnsubscribeAsync();
+            await CleanupAsync();
             await Shell.Current.GoToAsync("..");
         }
     }

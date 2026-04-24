@@ -9,53 +9,46 @@
     x:DataType="vm:WatchRoomViewModel"
     BackgroundColor="#080514">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
 
-        <!-- Video Player -->
-        <Grid Grid.Row="0" HeightRequest="130">
-            <Grid.Background>
-                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                    <GradientStop Color="#2D0D5E" Offset="0" />
-                    <GradientStop Color="#000000" Offset="1" />
-                </LinearGradientBrush>
-            </Grid.Background>
-
-            <!-- Play/Pause button -->
-            <Ellipse HeightRequest="44" WidthRequest="44"
-                     Fill="{StaticResource Mint}"
-                     HorizontalOptions="Center" VerticalOptions="Center">
-                <Ellipse.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding TogglePlayCommand}" />
-                </Ellipse.GestureRecognizers>
-            </Ellipse>
-            <Label HorizontalOptions="Center" VerticalOptions="Center"
-                   FontSize="16" TextColor="{StaticResource BgPrimary}"
-                   Margin="2,0,0,0">
-                <Label.FormattedText>
-                    <FormattedString>
-                        <Span Text="▶" />
-                    </FormattedString>
-                </Label.FormattedText>
-            </Label>
-
-            <!-- Room title overlay -->
+        <!-- Video Player (embedded, for everyone) -->
+        <Grid Grid.Row="0" HeightRequest="220">
+            <WebView x:Name="playerWebView"
+                     BackgroundColor="Black"
+                     Navigating="OnPlayerNavigating"
+                     Navigated="OnPlayerNavigated" />
             <VerticalStackLayout VerticalOptions="End" HorizontalOptions="Start"
-                                 Margin="12,0,0,8" Spacing="0">
+                                 Margin="12,0,0,8" Spacing="0"
+                                 InputTransparent="True">
                 <Label Text="{Binding RoomName}"
                        TextColor="White" FontSize="11" FontAttributes="Bold" />
-                <Label Text="0:00" TextColor="{StaticResource TextMuted}" FontSize="10" />
             </VerticalStackLayout>
+        </Grid>
 
-            <!-- Progress bar -->
-            <BoxView BackgroundColor="#333" HeightRequest="3"
-                     VerticalOptions="End" HorizontalOptions="Fill" Margin="0,0,0,0" />
-            <BoxView BackgroundColor="{StaticResource Mint}" HeightRequest="3"
-                     VerticalOptions="End" HorizontalOptions="Start"
-                     WidthRequest="60" Margin="0,0,0,0" />
+        <!-- Host YouTube browser (host only) -->
+        <Grid Grid.Row="1" RowDefinitions="Auto,*" HeightRequest="300"
+              IsVisible="{Binding IsHost}">
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="8,4" ColumnSpacing="8"
+                  BackgroundColor="#111">
+                <Entry x:Name="hostUrlEntry" Grid.Column="0"
+                       Text="https://www.youtube.com"
+                       TextColor="White" BackgroundColor="Transparent"
+                       FontSize="12" ReturnCommand="{x:Null}"
+                       Completed="OnHostUrlCompleted" />
+                <Label Grid.Column="1" Text="Go" TextColor="{StaticResource Mint}"
+                       FontSize="13" VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnHostGoTapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </Grid>
+            <WebView x:Name="hostWebView" Grid.Row="1"
+                     Source="https://www.youtube.com"
+                     Navigating="OnHostNavigating" />
         </Grid>
 
         <!-- Viewer strip -->
-        <HorizontalStackLayout Grid.Row="1" Padding="16,10" Spacing="8">
+        <HorizontalStackLayout Grid.Row="2" Padding="16,10" Spacing="8">
             <Label Text="🐢" FontSize="14" VerticalOptions="Center" />
             <Label Text="Watching now 🐢" TextColor="{StaticResource TextMuted}"
                    FontSize="11" VerticalOptions="Center" />
@@ -66,7 +59,7 @@
         </HorizontalStackLayout>
 
         <!-- Chat area -->
-        <CollectionView Grid.Row="2"
+        <CollectionView Grid.Row="3"
                         ItemsSource="{Binding Messages}"
                         x:Name="messagesView"
                         Margin="0,4,0,4">
@@ -83,7 +76,7 @@
         </CollectionView>
 
         <!-- Chat input -->
-        <Border Grid.Row="3"
+        <Border Grid.Row="4"
                 BackgroundColor="#0A0718"
                 Stroke="{StaticResource BorderColor}" StrokeThickness="1"
                 Padding="12,8">
