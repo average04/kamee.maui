@@ -12,6 +12,10 @@ namespace kamee.app.Views.Mobile
         private bool _playerSourceSet;
         private string _lastBroadcastVideoId = string.Empty;
 
+        // Host sync polling
+        private System.Timers.Timer? _pollTimer;
+        private bool _pollLastPaused = true;
+
         public string RoomId
         {
             get => _roomId;
@@ -44,7 +48,7 @@ namespace kamee.app.Views.Mobile
                     {
                         var p = pos.ToString(CultureInfo.InvariantCulture);
                         await playerWebView.EvaluateJavaScriptAsync(
-                            $"window._kameeLastCmd=Date.now();var v=document.querySelector('video');if(v){{if({p}>=0)v.currentTime={p};v.play();}}");
+                            $"(function(){{var v=document.querySelector('video');if(v){{if({p}>=0)v.currentTime={p};v.play();}}}})()");
                     }
                     catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"RemotePlay JS failed: {ex.Message}"); }
                 });
@@ -58,7 +62,7 @@ namespace kamee.app.Views.Mobile
                     {
                         var p = pos.ToString(CultureInfo.InvariantCulture);
                         await playerWebView.EvaluateJavaScriptAsync(
-                            $"window._kameeLastCmd=Date.now();var v=document.querySelector('video');if(v){{if({p}>=0)v.currentTime={p};v.pause();}}");
+                            $"(function(){{var v=document.querySelector('video');if(v){{if({p}>=0)v.currentTime={p};v.pause();}}}})()");
                     }
                     catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"RemotePause JS failed: {ex.Message}"); }
                 });
@@ -72,7 +76,7 @@ namespace kamee.app.Views.Mobile
                     {
                         var p = pos.ToString(CultureInfo.InvariantCulture);
                         await playerWebView.EvaluateJavaScriptAsync(
-                            $"window._kameeLastCmd=Date.now();var v=document.querySelector('video');if(v)v.currentTime={p};");
+                            $"(function(){{var v=document.querySelector('video');if(v)v.currentTime={p};}})()");
                     }
                     catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"RemoteSeek JS failed: {ex.Message}"); }
                 });
@@ -80,6 +84,7 @@ namespace kamee.app.Views.Mobile
             vm.OnRemoteVideoChanged = videoId =>
             {
                 if (string.IsNullOrEmpty(videoId)) return;
+                StopPolling();
                 _playerReady = false;
                 _playerSourceSet = false;
                 playerWebView.Source = new UrlWebViewSource { Url = YoutubePlayerHtml.GetWatchUrl(videoId) };
@@ -98,6 +103,7 @@ namespace kamee.app.Views.Mobile
         protected override async void OnDisappearing()
         {
             base.OnDisappearing();
+            StopPolling();
             _playerReady = false;
             _playerSourceSet = false;
             _lastBroadcastVideoId = string.Empty;
@@ -108,44 +114,64 @@ namespace kamee.app.Views.Mobile
         private async void OnPlayerNavigated(object sender, WebNavigatedEventArgs e)
         {
             if (!e.Url.StartsWith("https://www.youtube.com/watch")) return;
-            try
-            {
-                await Task.Delay(1500);
-                await playerWebView.EvaluateJavaScriptAsync(YoutubePlayerHtml.GetBridgeJs());
-            }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Bridge inject failed: {ex.Message}"); }
+            await Task.Delay(2000);
+            _playerReady = true;
+            if (BindingContext is WatchRoomViewModel vm && vm.IsHost)
+                StartHostPolling();
         }
 
         private void OnPlayerNavigating(object sender, WebNavigatingEventArgs e)
         {
-            if (!e.Url.StartsWith("kamee://")) return;
-            e.Cancel = true;
-            if (BindingContext is not WatchRoomViewModel vm) return;
-
-            var position = ParsePosition(e.Url);
-            var action = new Uri(e.Url).Host;
-
-            switch (action)
-            {
-                case "ready":
-                    _playerReady = true;
-                    break;
-                case "playing":
-                    vm.IsPlaying = true;
-                    vm.PlaybackPosition = position;
-                    _ = vm.BroadcastPlayAsync(position).ContinueWith(
-                        t => System.Diagnostics.Debug.WriteLine($"BroadcastPlay failed: {t.Exception?.GetBaseException().Message}"),
-                        TaskContinuationOptions.OnlyOnFaulted);
-                    break;
-                case "paused":
-                    vm.IsPlaying = false;
-                    vm.PlaybackPosition = position;
-                    _ = vm.BroadcastPauseAsync(position).ContinueWith(
-                        t => System.Diagnostics.Debug.WriteLine($"BroadcastPause failed: {t.Exception?.GetBaseException().Message}"),
-                        TaskContinuationOptions.OnlyOnFaulted);
-                    break;
-            }
+            if (e.Url.StartsWith("kamee://"))
+                e.Cancel = true;
         }
+
+        // ── Host sync polling ────────────────────────────────────────────────
+
+        private void StartHostPolling()
+        {
+            StopPolling();
+            _pollLastPaused = true;
+            _pollTimer = new System.Timers.Timer(1000) { AutoReset = true };
+            _pollTimer.Elapsed += OnPollTick;
+            _pollTimer.Start();
+        }
+
+        private void StopPolling()
+        {
+            _pollTimer?.Stop();
+            _pollTimer?.Dispose();
+            _pollTimer = null;
+        }
+
+        private async void OnPollTick(object? sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (BindingContext is not WatchRoomViewModel vm || !vm.IsHost) return;
+            try
+            {
+                var result = await MainThread.InvokeOnMainThreadAsync(() =>
+                    playerWebView.EvaluateJavaScriptAsync(
+                        "(function(){var v=document.querySelector('video');if(!v||isNaN(v.currentTime))return null;return(v.paused?'1':'0')+'|'+v.currentTime.toFixed(2);})()"));
+
+                if (result == null || result == "null") return;
+                result = result.Trim('"');
+                var parts = result.Split('|');
+                if (parts.Length != 2) return;
+                bool paused = parts[0] == "1";
+                if (!double.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double t)) return;
+
+                if (paused == _pollLastPaused) return;
+                _pollLastPaused = paused;
+
+                if (!paused)
+                    _ = vm.BroadcastPlayAsync(t);
+                else
+                    _ = vm.BroadcastPauseAsync(t);
+            }
+            catch { }
+        }
+
+        // ── Host browser ─────────────────────────────────────────────────────
 
         private void OnHostGoTapped(object sender, TappedEventArgs e) => NavigateHost();
         private void OnHostUrlCompleted(object sender, EventArgs e) => NavigateHost();
@@ -166,6 +192,7 @@ namespace kamee.app.Views.Mobile
             if (videoId == _lastBroadcastVideoId) return;
             _lastBroadcastVideoId = videoId;
 
+            StopPolling();
             _playerReady = false;
             _playerSourceSet = false;
             playerWebView.Source = new UrlWebViewSource { Url = YoutubePlayerHtml.GetWatchUrl(videoId) };
@@ -174,20 +201,6 @@ namespace kamee.app.Views.Mobile
             _ = vm.BroadcastVideoChangedAsync(videoId).ContinueWith(
                 t => System.Diagnostics.Debug.WriteLine($"BroadcastVideoChanged failed: {t.Exception?.GetBaseException().Message}"),
                 TaskContinuationOptions.OnlyOnFaulted);
-        }
-
-        private static double ParsePosition(string url)
-        {
-            var q = url.IndexOf('?');
-            if (q < 0) return -1;
-            foreach (var pair in url.Substring(q + 1).Split('&'))
-            {
-                var kv = pair.Split('=');
-                if (kv.Length == 2 && kv[0] == "position" &&
-                    double.TryParse(kv[1], NumberStyles.Any, CultureInfo.InvariantCulture, out var d))
-                    return d;
-            }
-            return -1;
         }
     }
 }

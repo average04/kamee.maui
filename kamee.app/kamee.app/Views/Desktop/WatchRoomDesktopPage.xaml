@@ -89,6 +89,10 @@
                              Navigating="OnPlayerNavigating"
                              Navigated="OnPlayerNavigated" />
                 </Border>
+                <!-- Blocks watcher interaction with the player -->
+                <BoxView Color="Transparent"
+                         IsVisible="{Binding IsNotHost}"
+                         InputTransparent="False" />
             </Grid>
 
             <!-- Host YouTube browser (host only) -->

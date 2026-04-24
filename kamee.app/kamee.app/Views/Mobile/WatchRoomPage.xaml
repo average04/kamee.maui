@@ -23,6 +23,10 @@
                 <Label Text="{Binding RoomName}"
                        TextColor="White" FontSize="11" FontAttributes="Bold" />
             </VerticalStackLayout>
+            <!-- Blocks watcher interaction with the player -->
+            <BoxView Color="Transparent"
+                     IsVisible="{Binding IsNotHost}"
+                     InputTransparent="False" />
         </Grid>
 
         <!-- Host YouTube browser (host only) -->

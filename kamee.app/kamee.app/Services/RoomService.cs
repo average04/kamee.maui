@@ -17,7 +17,7 @@ namespace kamee.app.Services
         {
             var response = await _supabase.Client
                 .From<Room>()
-                .Filter("is_live", Postgrest.Constants.Operator.Equals, true)
+                .Filter("is_live", Postgrest.Constants.Operator.Equals, "true")
                 .Get();
             return response.Models;
         }
@@ -68,7 +68,7 @@ namespace kamee.app.Services
                 UserId = userId,
                 JoinedAt = DateTime.UtcNow
             };
-            await _supabase.Client.From<RoomMember>().Insert(member);
+            await _supabase.Client.From<RoomMember>().Upsert(member);
 
             await _supabase.Client
                 .From<User>()
