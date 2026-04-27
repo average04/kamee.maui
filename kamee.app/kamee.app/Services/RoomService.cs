@@ -68,7 +68,14 @@ namespace kamee.app.Services
                 UserId = userId,
                 JoinedAt = DateTime.UtcNow
             };
-            await _supabase.Client.From<RoomMember>().Upsert(member);
+            try
+            {
+                await _supabase.Client.From<RoomMember>().Insert(member);
+            }
+            catch (Postgrest.Exceptions.PostgrestException ex) when (ex.Message.Contains("23505"))
+            {
+                // Already a member — safe to continue
+            }
 
             await _supabase.Client
                 .From<User>()
